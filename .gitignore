@@ -1,0 +1,6 @@
+.DS_Store
+postube
+config.yaml
+.notes
+.env
+data*

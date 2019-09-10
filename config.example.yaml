@@ -1,0 +1,38 @@
+# Youtube parse channels settings
+parser:
+  # Turn on/off parser
+  enabled: true
+  # If skipMode: true, videos would't post to vk public and telegram, 
+  # but store to app database, that items wouldn't be posted in the future
+  skipMode: false
+  # Interval for check updates (seconds)
+  interval: 120
+
+# Proxy settings
+proxy:
+  # Turn on/off proxy
+  enabled: false
+  # Proxy URL, examples: 
+  # "socks5://localhost:9050" (local tor socks5 proxy)
+  # "http://proxy.com:3128" (some http proxy)
+  url: ""
+
+# vk.com settings
+vk:
+  # Your public ID
+  groupID: ""
+  # Token, for access VK API
+  accessToken: ""
+
+telegram:
+  # Token your telegram bot
+  token: ""
+  # Name your chanel, example: "@postube"
+  channel: ""
+
+# Youtube channels ID's
+channels:
+  # SpaceX (example!)
+  - UCtI0Hodo5o5dUb67FeUjDeA
+  # BostonDynamics (example!)
+  - UC7vVhkEfw4nOGp8TyDk7RcQ
