@@ -10,7 +10,7 @@ Example vk public pages: [dnbtube](https://vk.com/dnbtube), [loungetube](https:/
 
 ```git clone git@github.com:theaidem/postube.git project_name```
 
-`project_name` is the name of the project without spaces ex. `onlycats`, `funy_videos`, etc
+`project_name` is the name of the project without spaces ex. `postube`, `tube_poster`, etc
 
 ### Copy and Define project env variables
 
@@ -18,23 +18,38 @@ Example vk public pages: [dnbtube](https://vk.com/dnbtube), [loungetube](https:/
 
 then edit `.env` file
 
-### Copy and Define configuration file for the application
+### Copy and Define main configuration file for the application
 
-```cp config.example.yaml config.yaml```
+```cp config/config.example.yaml config/config.yaml```
 
- Firstly, let's create a [Standalone app](https://vk.com/editapp?act=create)
 
- ### Generate access token:
+### Define tubes. (Your post targets collection)
+
+without spaces, example: `postube`, `sciencevideos`, define and create config for them: 
+
+`cp ./config/tube.config.example.yaml ./config/TUBE_NAME.config.yaml`
+
+> **TUBE_NAME** is a name of the tube
+
+```yaml
+...
+    tubes:
+        - postube
+        # - sciencevideos
+        # - etcmoves
+...
+```
+
+Ok, below we will edit your `./config/TUBE_NAME.config.yaml`
+
+Firstly, let's create a [Standalone app](https://vk.com/editapp?act=create)
+
+### Generate access token:
 
 **Opening OAuth Authorization Dialog:**
 
  ```
- https://oauth.vk.com/authorize?
-    client_id=APP_ID
-    &redirect_uri=https://vk.com
-    &scope=73744
-    &response_type=code
-    &v=5.92
+ https://oauth.vk.com/authorize?client_id=APP_ID&redirect_uri=https://vk.com&scope=73744&response_type=code&v=5.92
  ```
 
  > The **APP_ID** is your standalone application ID
@@ -46,11 +61,7 @@ then edit `.env` file
  **Receiving "access_token":**
 
  ```
- https://oauth.vk.com/access_token? 
-    client_id=APP_ID
-    &client_secret=APP_SECRET
-    &code=CODE
-    &redirect_uri=https://vk.com
+ https://oauth.vk.com/access_token?client_id=APP_ID&client_secret=APP_SECRET&code=CODE&redirect_uri=https://vk.com
 ```
 
  > The **APP_ID** is your standalone application ID
@@ -68,7 +79,7 @@ Example of server response:
 }
 ```
 
-Copy ``access_token`` to config.yaml
+Copy ``access_token`` to `./config/TUBE_NAME.config.yaml`
 
 ```yaml
 ...
@@ -83,7 +94,7 @@ More about authorization see [there](https://vk.com/dev/auth_sites)
 
 https://vk.com/groups?w=groups_create
 
-Paste your group id to config.yaml
+Paste your group id to `./config/TUBE_NAME.config.yaml`
 
 ```yaml
 ...
@@ -92,11 +103,11 @@ Paste your group id to config.yaml
 ...
 ```
 
- ### Create telegram bot account and API token
+### Create telegram bot account and API token
 
 Follow https://telegram.me/BotFather 
 
-Paste your API token to config.yaml
+Paste your API token to `./config/TUBE_NAME.config.yaml`
 
 ```yaml
 ...
@@ -105,9 +116,9 @@ Paste your API token to config.yaml
 ...
 ```
 
- ### Create telegram channel
+### Create telegram channel
 
-Paste channel name to config.yaml
+Paste channel name to `./config/TUBE_NAME.config.yaml`
 
 ```yaml
 ...
@@ -116,7 +127,7 @@ Paste channel name to config.yaml
 ...
 ```
 
- ### Define your youtube channels ids collection
+### Define your youtube channels ids collection
 
  Example:
 
@@ -137,7 +148,7 @@ make run
 
 ## Deployment to server
 
-> This **optional** step, you can use your own approach for that
+> This **optional** step, you can use your own approach for that, anyway `Makefile` is your friend ;)
 
 Edit `.env` vars, `USER` `HOST` `APP_PATH`
 
@@ -175,5 +186,13 @@ You can edit `config.yaml` locally, and upload to server, the application will r
 
 ```shell
 make upload.config
+```
+
+Also, you can upload `TUBE_NAME.config.yaml` configs
+
+> **TUBE_NAME** is a name of the tube
+
+```shell
+make upload.tube.config tube=TUBE_NAME
 ```
 

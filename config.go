@@ -9,7 +9,11 @@ import (
 	"github.com/spf13/viper"
 )
 
-type cfg struct{}
+const configPath = "./config"
+
+type cfg struct {
+	config *viper.Viper
+}
 
 var (
 	cfgOnce     sync.Once
@@ -19,12 +23,14 @@ var (
 func config() *cfg {
 	cfgOnce.Do(func() {
 		log.Println("Init Configuration")
-		cfgInstance = cfg{}
-		viper.AddConfigPath(".")
-		viper.SetConfigName("config")
-		viper.WatchConfig()
-		viper.OnConfigChange(cfgInstance.onConfigChange)
-		if err := viper.ReadInConfig(); err != nil {
+		cfgInstance = cfg{
+			config: viper.New(),
+		}
+		cfgInstance.config.AddConfigPath(configPath)
+		cfgInstance.config.SetConfigName("config")
+		cfgInstance.config.WatchConfig()
+		cfgInstance.config.OnConfigChange(cfgInstance.onConfigChange)
+		if err := cfgInstance.config.ReadInConfig(); err != nil {
 			log.Panic(err)
 		}
 	})
@@ -37,41 +43,25 @@ func (c *cfg) onConfigChange(e fsnotify.Event) {
 }
 
 func (c *cfg) proxyEnabled() bool {
-	return viper.GetBool("proxy.enabled")
+	return c.config.GetBool("proxy.enabled")
 }
 
 func (c *cfg) proxyURL() string {
-	return viper.GetString("proxy.url")
+	return c.config.GetString("proxy.url")
 }
 
 func (c *cfg) parserIsEnabled() bool {
-	return viper.GetBool("parser.enabled")
+	return c.config.GetBool("parser.enabled")
 }
 
 func (c *cfg) isSkipMode() bool {
-	return viper.GetBool("parser.skipMode")
+	return c.config.GetBool("parser.skipMode")
 }
 
 func (c *cfg) parserInterval() time.Duration {
-	return time.Second * viper.GetDuration("parser.interval")
+	return time.Second * c.config.GetDuration("parser.interval")
 }
 
-func (c *cfg) channels() []string {
-	return viper.GetStringSlice("channels")
-}
-
-func (c *cfg) vkAccessToken() string {
-	return viper.GetString("vk.accessToken")
-}
-
-func (c *cfg) vkGroupID() string {
-	return viper.GetString("vk.groupID")
-}
-
-func (c *cfg) telegramToken() string {
-	return viper.GetString("telegram.token")
-}
-
-func (c *cfg) telegramChannel() string {
-	return viper.GetString("telegram.channel")
+func (c *cfg) tubes() []string {
+	return c.config.GetStringSlice("tubes")
 }

@@ -37,11 +37,11 @@ type vkError struct {
 	} `json:"request_params"`
 }
 
-func saveVideo(link string) (*vkResponse, error) {
+func saveVideo(link, accessToken, groupID string) (*vkResponse, error) {
 
 	form := url.Values{}
-	form.Add("access_token", config().vkAccessToken())
-	form.Add("group_id", config().vkGroupID())
+	form.Add("access_token", accessToken)
+	form.Add("group_id", groupID)
 	form.Add("link", link)
 	form.Add("v", apiVersion)
 
@@ -88,12 +88,12 @@ func saveVideo(link string) (*vkResponse, error) {
 	return &vkResp, nil
 }
 
-func addPost(ownerID, videoID int, entry *rssEntry) error {
+func addPost(ownerID, videoID int, entry *rssEntry, accessToken string) error {
 
 	form := url.Values{}
 	form.Add("v", apiVersion)
 	form.Add("from_group", "1")
-	form.Add("access_token", config().vkAccessToken())
+	form.Add("access_token", accessToken)
 	form.Add("owner_id", fmt.Sprintf("%d", ownerID))
 	form.Add("attachments", fmt.Sprintf("video%d_%d", ownerID, videoID))
 	form.Add("message", fmt.Sprintf("%s\n\n%s", entry.Group.Title, entry.Group.Description))

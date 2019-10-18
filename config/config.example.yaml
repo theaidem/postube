@@ -5,7 +5,7 @@ parser:
   # If skipMode: true, videos would't post to vk public and telegram, 
   # but store to app database, that items wouldn't be posted in the future
   skipMode: false
-  # Interval for check updates (seconds)
+  # Interval for check RSS updates (seconds)
   interval: 120
 
 # Proxy settings
@@ -17,22 +17,13 @@ proxy:
   # "http://proxy.com:3128" (some http proxy)
   url: ""
 
-# vk.com settings
-vk:
-  # Your public ID
-  groupID: ""
-  # Token, for access VK API
-  accessToken: ""
+# Your post targets collection,
+# without spaces, example: `postube`, `sciencevideos`
+# define and create config for them: 
+# cp ./config/tube.config.example.yaml ./config/TUBE_NAME.config.yaml
+# **TUBE_NAME** is a name of the tube
+tubes:
+  - postube
+  # - sciencevideos
+  # - etcmoves
 
-telegram:
-  # Token your telegram bot
-  token: ""
-  # Name your chanel, example: "@postube"
-  channel: ""
-
-# Youtube channels ID's
-channels:
-  # SpaceX (example!)
-  - UCtI0Hodo5o5dUb67FeUjDeA
-  # BostonDynamics (example!)
-  - UC7vVhkEfw4nOGp8TyDk7RcQ

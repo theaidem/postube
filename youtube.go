@@ -9,6 +9,8 @@ import (
 	"time"
 
 	"github.com/pkg/errors"
+	"github.com/recoilme/pudge"
+	"github.com/spf13/viper"
 )
 
 const (
@@ -45,8 +47,33 @@ type rssEntry struct {
 	} `xml:"group"`
 }
 
-func parseRSSFeed() {
-	for _, id := range config().channels() {
+func parseRSSFeed(tubeName string, tubeConfig *viper.Viper) {
+
+	channels := tubeConfig.GetStringSlice("channels")
+	tubeDataPath := fmt.Sprintf("./data/%s", tubeName)
+	tubeDB, err := pudge.Open(tubeDataPath, nil)
+	if err != nil {
+		log.Println(err)
+		return
+	}
+	defer tubeDB.Close()
+
+	log.Printf("(%s) Start RSS parsing... %d channels", tubeName, len(channels))
+	for _, id := range channels {
+
+		isChanExists, err := tubeDB.Has(id)
+		if err != nil {
+			log.Println(err)
+			continue
+		}
+
+		if !isChanExists {
+			fmt.Printf("(%s) Detect new channel: %s", tubeName, id)
+			if err := tubeDB.Set(id, true); err != nil {
+				log.Println(err)
+				continue
+			}
+		}
 
 		endpoint := fmt.Sprintf("%s?channel_id=%s", rssURL, id)
 		request, err := newRequest("GET", endpoint, nil)
@@ -86,19 +113,19 @@ func parseRSSFeed() {
 		for i := range feed.Entries {
 			entry := feed.Entries[len(feed.Entries)-1-i]
 
-			exists, err := db().has(entry.ID)
+			exists, err := tubeDB.Has(entry.ID)
 			if err != nil {
 				log.Println("DB check record ERROR:", err.Error())
 				continue
 			}
 
 			if !exists {
-				if config().isSkipMode() {
-					db().set(entry.ID, time.Now().Unix())
+				if config().isSkipMode() || !isChanExists {
+					tubeDB.Set(entry.ID, time.Now().Unix())
 					log.Println("Stored with skip mode:", entry.Title)
 				} else {
-					if err = postingEntry(&entry); err == nil {
-						db().set(entry.ID, time.Now().Unix())
+					if err = postingEntry(&entry, tubeConfig); err == nil {
+						tubeDB.Set(entry.ID, time.Now().Unix())
 						log.Println("Posted", entry.Title)
 					} else {
 						log.Println(err)
@@ -107,25 +134,32 @@ func parseRSSFeed() {
 			}
 
 		}
-
 	}
+	return
 }
 
-func postingEntry(entry *rssEntry) error {
+func postingEntry(entry *rssEntry, tubeConfig *viper.Viper) error {
 
-	video, err := saveVideo(entry.Link.Href)
+	accessToken := tubeConfig.GetString("vk.accessToken")
+	groupID := tubeConfig.GetString("vk.groupID")
+
+	video, err := saveVideo(entry.Link.Href, accessToken, groupID)
 	if err != nil {
 		return errors.Wrap(err, "VK Save Video ERROR:")
 	}
 
 	time.Sleep(time.Second) // for rate limit!
 
-	if err = addPost(video.Response.OwnerID, video.Response.VideoID, entry); err != nil {
+	if err = addPost(video.Response.OwnerID, video.Response.VideoID, entry, accessToken); err != nil {
 		return errors.Wrap(err, "VK Add Post ERROR:")
 	}
 
-	if err = sendMessage(entry.Link.Href, entry.Group.Title); err != nil {
-		return errors.Wrap(err, "Telegram Add Post ERROR:")
+	telegramToken := tubeConfig.GetString("telegram.token")
+	telegramChannel := tubeConfig.GetString("telegram.channel")
+
+	if err = sendMessage(entry.Link.Href, entry.Group.Title, telegramToken, telegramChannel); err != nil {
+		log.Println("Telegram Add Post ERROR:", err)
+		// Ignore telegram error returns...
 	}
 
 	return nil

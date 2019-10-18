@@ -1,6 +1,8 @@
 .DS_Store
-postube
-config.yaml
-.notes
 .env
-data*
+.notes
+config.yaml
+*.config.yaml
+postube
+data/*
+!data/.gitkeep

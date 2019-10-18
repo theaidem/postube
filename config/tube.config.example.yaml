@@ -1,0 +1,26 @@
+# tube settings
+vk:
+  ### Create vk public page
+  # Follow https://vk.com/groups?w=groups_create
+  # Your public ID
+  groupID: ""
+  
+  # Token, for access VK API
+  accessToken: ""
+
+telegram:
+  ### Create telegram bot account and API token
+  # Follow https://telegram.me/BotFather 
+  # Token your telegram bot
+  token: ""
+  
+  ### Create telegram channel
+  # Name your chanel, example: "@postube"
+  channel: ""
+
+# Youtube channels ID's
+channels:
+  # SpaceX (example!)
+  - UCtI0Hodo5o5dUb67FeUjDeA
+  # BostonDynamics (example!)
+  - UC7vVhkEfw4nOGp8TyDk7RcQ

@@ -1,8 +1,12 @@
 include .env
 
+define check_arg
+	@[ ${1} ] || ( echo ">> ${2} is not set, use: ${2}=value"; exit 1 )
+endef
+
 CMD_CD_APP_PATH='cd ${APP_PATH}'
 CMD_BUILD_IMAGE='${CMD_CD_APP_PATH} && docker build --build-arg appname=${APP_NAME} -t ${APP_NAME} .'
-CMD_RUN_CONTAINER='${CMD_CD_APP_PATH} && docker run -v $${PWD}:/app --name ${APP_NAME} -d ${APP_NAME}'
+CMD_RUN_CONTAINER='${CMD_CD_APP_PATH} && docker run --restart always -v $${PWD}/config:/app/config -v $${PWD}/data:/app/data --name ${APP_NAME} -d ${APP_NAME}'
 CMD_RESTART_CONTAINER='docker restart ${APP_NAME}'
 CMD_STOP_CONTAINER='docker stop ${APP_NAME}'
 CMD_LOGS_CONTAINER='docker logs -f --tail=100 ${APP_NAME}'
@@ -16,10 +20,6 @@ run: appname build.local
 clean:
 	@rm -rf ${APP_NAME}
 	@echo clean: OK!
-
-clean.db:
-	@rm data data.idx
-	@echo clean.db: OK!
 
 build.local: clean
 	@go build -o ${APP_NAME}
@@ -45,12 +45,23 @@ upload.dockerfile:
 
 ## Upload app config
 upload.config:
-	@scp ./config.yaml ${USER}@${HOST}:${APP_PATH}
+	@scp ./config/config.yaml ${USER}@${HOST}:${APP_PATH}/config
+
+## Upload tube config
+upload.tube.config:
+	$(call check_arg, ${tube}, tube)
+	@scp ./config/${tube}.config.yaml ${USER}@${HOST}:${APP_PATH}/config
+
+# Create data, config folders
+create.data.and.config:
+	@ssh ${USER}@${HOST} mkdir -p ${APP_PATH}/data
+	@ssh ${USER}@${HOST} mkdir -p ${APP_PATH}/config
 
 ## Upload all app needed files
 upload.all: mkdir.apppath
 	@make upload.bin
 	@make upload.dockerfile
+	@make create.data.and.config
 	@make upload.config
 	@echo upload: OK!
 
