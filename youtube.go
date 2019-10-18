@@ -68,7 +68,7 @@ func parseRSSFeed(tubeName string, tubeConfig *viper.Viper) {
 		}
 
 		if !isChanExists {
-			fmt.Printf("(%s) Detect new channel: %s", tubeName, id)
+			log.Printf("(%s) Detect new channel: %s\n", tubeName, id)
 			if err := tubeDB.Set(id, true); err != nil {
 				log.Println(err)
 				continue
@@ -126,7 +126,7 @@ func parseRSSFeed(tubeName string, tubeConfig *viper.Viper) {
 				} else {
 					if err = postingEntry(&entry, tubeConfig); err == nil {
 						tubeDB.Set(entry.ID, time.Now().Unix())
-						log.Println("Posted", entry.Title)
+						log.Printf("(%s) Posted: %s\n", tubeName, entry.Title)
 					} else {
 						log.Println(err)
 					}
