@@ -10,9 +10,10 @@ import (
 )
 
 const (
-	apiVersion        = "5.95"
-	saveVideoEndpoint = "https://api.vk.com/method/video.save"
-	wallPostEndpoint  = "https://api.vk.com/method/wall.post"
+	apiVersion          = "5.95"
+	saveVideoEndpoint   = "https://api.vk.com/method/video.save"
+	deleteVideoEndpoint = "https://api.vk.com/method/video.delete"
+	wallPostEndpoint    = "https://api.vk.com/method/wall.post"
 )
 
 type vkResponse struct {
@@ -86,6 +87,47 @@ func saveVideo(link, accessToken, groupID string) (*vkResponse, error) {
 	}
 
 	return &vkResp, nil
+}
+
+func deleteVideo(groupID, videoID int, accessToken string) error {
+
+	form := url.Values{}
+	form.Add("access_token", accessToken)
+	form.Add("owner_id", fmt.Sprintf("%d", groupID))
+	form.Add("video_id", fmt.Sprintf("%d", videoID))
+	form.Add("v", apiVersion)
+
+	reqBody := strings.NewReader(form.Encode())
+
+	request, err := newRequest("POST", deleteVideoEndpoint, reqBody)
+	if err != nil {
+		return err
+	}
+
+	client, err := newClient()
+	if err != nil {
+		return err
+	}
+
+	response, err := client.Do(request)
+	if err != nil {
+		return err
+	}
+
+	defer response.Body.Close()
+	body, err := ioutil.ReadAll(response.Body)
+	if err != nil {
+		return err
+	}
+
+	var vkResp vkResponse
+	json.Unmarshal(body, &vkResp)
+
+	if vkResp.Error.ErrorCode != 0 {
+		return errors.New(vkResp.Error.ErrorMsg)
+	}
+
+	return nil
 }
 
 func addPost(ownerID, videoID int, entry *rssEntry, accessToken string) error {

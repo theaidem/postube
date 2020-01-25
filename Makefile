@@ -5,7 +5,7 @@ define check_arg
 endef
 
 CMD_CD_APP_PATH='cd ${APP_PATH}'
-CMD_BUILD_IMAGE='${CMD_CD_APP_PATH} && docker build --build-arg appname=${APP_NAME} -t ${APP_NAME} .'
+CMD_BUILD_IMAGE='${CMD_CD_APP_PATH} && docker build --force-rm --no-cache --build-arg appname=${APP_NAME} -t ${APP_NAME} .'
 CMD_RUN_CONTAINER='${CMD_CD_APP_PATH} && docker run --restart always -v $${PWD}/config:/app/config -v $${PWD}/data:/app/data --name ${APP_NAME} -d ${APP_NAME}'
 CMD_RESTART_CONTAINER='docker restart ${APP_NAME}'
 CMD_STOP_CONTAINER='docker stop ${APP_NAME}'

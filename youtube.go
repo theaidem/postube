@@ -151,6 +151,9 @@ func postingEntry(entry *rssEntry, tubeConfig *viper.Viper) error {
 	time.Sleep(time.Second) // for rate limit!
 
 	if err = addPost(video.Response.OwnerID, video.Response.VideoID, entry, accessToken); err != nil {
+		if delErr := deleteVideo(video.Response.OwnerID, video.Response.VideoID, accessToken); delErr != nil {
+			return errors.Wrap(delErr, "VK Delete video ERROR:")
+		}
 		return errors.Wrap(err, "VK Add Post ERROR:")
 	}
 
