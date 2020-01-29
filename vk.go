@@ -14,6 +14,7 @@ const (
 	saveVideoEndpoint   = "https://api.vk.com/method/video.save"
 	deleteVideoEndpoint = "https://api.vk.com/method/video.delete"
 	wallPostEndpoint    = "https://api.vk.com/method/wall.post"
+	toMatchRequestsErr  = "Too much requests"
 )
 
 type vkResponse struct {
@@ -76,17 +77,43 @@ func saveVideo(link, accessToken, groupID string) (*vkResponse, error) {
 		return nil, errors.New(vkResp.Error.ErrorMsg)
 	}
 
-	request, err = newRequest("GET", vkResp.Response.UploadURL, nil)
-	if err != nil {
-		return nil, err
-	}
-
-	response, err = client.Do(request)
+	err = touchVideo(vkResp.Response.UploadURL)
 	if err != nil {
 		return nil, err
 	}
 
 	return &vkResp, nil
+}
+
+func touchVideo(url string) error {
+
+	request, err := newRequest("GET", url, nil)
+	if err != nil {
+		return err
+	}
+
+	client, err := newClient()
+	if err != nil {
+		return err
+	}
+
+	response, err := client.Do(request)
+	if err != nil {
+		return err
+	}
+	defer response.Body.Close()
+
+	body, err := ioutil.ReadAll(response.Body)
+	if err != nil {
+		return err
+	}
+
+	// Too much requests??
+	if string(body) == toMatchRequestsErr {
+		return errors.New(toMatchRequestsErr)
+	}
+
+	return nil
 }
 
 func deleteVideo(groupID, videoID int, accessToken string) error {

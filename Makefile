@@ -8,6 +8,8 @@ CMD_CD_APP_PATH='cd ${APP_PATH}'
 CMD_BUILD_IMAGE='${CMD_CD_APP_PATH} && docker build --force-rm --no-cache --build-arg appname=${APP_NAME} -t ${APP_NAME} .'
 CMD_RUN_CONTAINER='${CMD_CD_APP_PATH} && docker run --restart always -v $${PWD}/config:/app/config -v $${PWD}/data:/app/data --name ${APP_NAME} -d ${APP_NAME}'
 CMD_RESTART_CONTAINER='docker restart ${APP_NAME}'
+CMD_RM_CONTAINER='docker rm ${APP_NAME} -f'
+CMD_RM_IMAGE='docker rmi ${APP_NAME} -f'
 CMD_STOP_CONTAINER='docker stop ${APP_NAME}'
 CMD_LOGS_CONTAINER='docker logs -f --tail=100 ${APP_NAME}'
 
@@ -77,9 +79,26 @@ remote.run.docker.conatainer:
 remote.stop.docker.conatainer:
 	@ssh ${USER}@${HOST} ${CMD_STOP_CONTAINER}
 
+## Remove container remotely
+remote.remove.docker.conatainer:
+	@ssh ${USER}@${HOST} ${CMD_RM_CONTAINER}
+
+## Remove image remotely
+remote.remove.docker.image:
+	@ssh ${USER}@${HOST} ${CMD_RM_IMAGE}
+
 ## Restart container remotely
 remote.restart.docker.conatainer:
 	@ssh ${USER}@${HOST} ${CMD_RESTART_CONTAINER}
+
+## Fully reload project remotely
+remote.project.restart:
+	@make remote.stop.docker.conatainer
+	@make remote.remove.docker.conatainer
+	@make remote.remove.docker.image
+	@make remote.build.docker.image
+	@make remote.run.docker.conatainer
+	@echo project restart: OK!
 
 ## View logs for the container
 remote.logs.docker.conatainer:

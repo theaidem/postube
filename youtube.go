@@ -59,6 +59,8 @@ func parseRSSFeed(tubeName string, tubeConfig *viper.Viper) {
 	defer tubeDB.Close()
 
 	log.Printf("(%s) Start RSS parsing... %d channels", tubeName, len(channels))
+	posted := 0
+
 	for _, id := range channels {
 
 		isChanExists, err := tubeDB.Has(id)
@@ -126,9 +128,12 @@ func parseRSSFeed(tubeName string, tubeConfig *viper.Viper) {
 				} else {
 					if err = postingEntry(&entry, tubeConfig); err == nil {
 						tubeDB.Set(entry.ID, time.Now().Unix())
-						log.Printf("(%s) Posted: %s\n", tubeName, entry.Title)
+						posted++
+						log.Printf("(%s) [%d] Posted: %s\n", tubeName, posted, entry.Title)
+						// TODO: post limitation?!!
 					} else {
 						log.Println(err)
+						return
 					}
 				}
 			}
