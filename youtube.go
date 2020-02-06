@@ -129,8 +129,11 @@ func parseRSSFeed(tubeName string, tubeConfig *viper.Viper) {
 					if err = postingEntry(&entry, tubeConfig); err == nil {
 						tubeDB.Set(entry.ID, time.Now().Unix())
 						posted++
-						log.Printf("(%s) [%d] Posted: %s\n", tubeName, posted, entry.Title)
-						// TODO: post limitation?!!
+						log.Printf("(%s) [%d][%s] Posted: %s\n", tubeName, posted, id, entry.Title)
+						// Post limitation check here
+						if posted == tubeConfig.GetInt("postLimit") {
+							return
+						}
 					} else {
 						log.Println(err)
 						return

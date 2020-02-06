@@ -7,6 +7,10 @@ vk:
   
   # Token, for access VK API
   accessToken: ""
+  
+  # Limit publishing posts per parse iteration
+  # 0 is unlimited
+  postLimit: 0
 
 telegram:
   ### Create telegram bot account and API token
