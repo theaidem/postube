@@ -2,7 +2,15 @@
 
 Parse youtube channels, and post videos to vk.com public page, and telegram channel. 
 
-Example vk public pages: [dnbtube](https://vk.com/dnbtube), [loungetube](https://vk.com/loungetube)
+Example vk public pages: 
+
++ [dnbtube](https://vk.com/dnbtube)
++ [loungetube](https://vk.com/loungetube)
++ [technotube](https://vk.com/techno.tube)
++ [trancetube](https://vk.com/trancetube)
++ [housetube](https://vk.com/housetube)
++ [coretube](https://vk.com/core.tube)
++ [synthtube](https://vk.com/synthtube)
 
 ## Get started
 
